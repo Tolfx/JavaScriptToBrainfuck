@@ -12,8 +12,40 @@ BF_PRINT = "."
 BF_READ = ","
 BF_WHILE = "["
 BF_WHILE_END = "]"
+BF_CLEAN_CELL = "[-]>"
 
-# Function to convert  
+In_Loop = False
+
+# Returns a list of the console log
+def ConsoleLog(consoleLog: str):
+    asciiBF = []
+    printBF = []
+    a = consoleLog.split("(")[1]
+    a = a.replace(")", "")
+    a = a.replace("\"", "")
+    a = a.replace("'", "")
+    a = a.replace("`", "")
+    a = a.replace(";", "")
+    
+    # Convert to ascii
+    count = 0
+    while len(a) > count:
+        if a[count] == "\\" and a[count+1] == "n":
+            asciiBF.append(int("10"))
+        else:
+            asciiBF.append(ord(a[count]))
+
+        count = count + 1
+
+    # Turn into to brainfuckery
+    for x in asciiBF:
+        for y in range(x):
+            printBF.append(BF_ADD)
+            if (y+1) == x:
+                printBF.append(BF_PRINT)
+                printBF.append(BF_CLEAN_CELL)
+    return printBF
+
 def listToString(s): 
     str1 = "" 
     for ele in s: 
@@ -26,26 +58,10 @@ with open("js.js", "rt") as a_file:
   for line in a_file:
     stripped_line = line.strip()
     if stripped_line.find("console.log") != -1:
-        a = stripped_line.split("(")[1]
-        a = a.replace(")", "")
-        a = a.replace("\"", "")
-        a = a.replace("'", "")
-        a = a.replace("`", "")
-        a = a.replace(";", "")
-        
-        # Convert to ascii
-        asciiBF = []
-        for letter in a:
-            asciiBF.append(ord(letter))
+        console = ConsoleLog(stripped_line)
+        brainPrint.append(listToString(console))
 
-        # Turn into to brainfuckery
-        for x in asciiBF:
-            for y in range(x):
-                # Issue.. will continue, so need to break and make sure the cell doesnt go over 255
-                brainPrint.append(BF_ADD)
-                if (y+1) == x:
-                    brainPrint.append(BF_PRINT)
-                    brainPrint.append(BF_POINTER_RIGHT)
+
 
 fileName = "compiled.b"
 createFile = open(fileName, "w")
